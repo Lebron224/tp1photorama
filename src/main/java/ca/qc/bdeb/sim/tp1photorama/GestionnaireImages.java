@@ -1,4 +1,4 @@
-package ca.qc.bdeb.sim.prototype_photorama.modele;
+package ca.qc.bdeb.sim.tp1photorama;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

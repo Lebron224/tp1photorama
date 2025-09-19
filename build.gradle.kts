@@ -50,4 +50,11 @@ jlink {
     launcher {
         name = "app"
     }
+
+    tasks.register<JavaExec>("runCmd") {
+        group = "application"
+        mainClass.set("ca.qc.bdeb.sim.tp1photorama.MainCmd")
+        classpath = sourceSets["main"].runtimeClasspath
+        standardInput = System.`in`
+    }
 }
