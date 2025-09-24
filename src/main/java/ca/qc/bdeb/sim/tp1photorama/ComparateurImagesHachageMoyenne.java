@@ -2,65 +2,96 @@ package ca.qc.bdeb.sim.tp1photorama;
 
 import java.io.IOException;
 
-public class ComparateurImagesHachageMoyenne extends ComparateurImages{
+/**
+ * Comparateur d'images utilisant l'algorithme de hachage par moyenne.
+ * Redimensionne chaque image en 8x8 pixels, convertit en niveaux de gris,
+ * puis compare les hachages binaires.
+ */
+public class ComparateurImagesHachageMoyenne extends ComparateurImages {
+
+    // Accès au paramètre de tolérance défini dans la classe parente
     @Override
-    public boolean isPixelFaible() {
-        return super.isPixelFaible();
+    public boolean isToleranceFaible() {
+        return super.isToleranceFaible();
     }
 
     @Override
-    public void setPixelFaible(boolean pixelFaible) {
-        super.setPixelFaible(pixelFaible);
+    public void setToleranceFaible(boolean toleranceFaible) {
+        super.setToleranceFaible(toleranceFaible);
     }
 
+    /**
+     * Compare deux images à l'aide de leur hachage moyen.
+     *
+     * @param chemin1 Chemin vers la première image
+     * @param chemin2 Chemin vers la deuxième image
+     * @return true si les images sont similaires
+     * @throws IOException si la lecture des images échoue
+     */
     @Override
     public boolean imagesSimilaires(String chemin1, String chemin2) throws IOException {
-        int[][] image1 = GestionnaireImages.toPixels(GestionnaireImages.redimensionner(GestionnaireImages.lireImage(chemin1),8,8));
-        int[][] image2 = GestionnaireImages.toPixels(GestionnaireImages.redimensionner(GestionnaireImages.lireImage(chemin2),8,8));
+        // Étape 1 : Lecture et redimensionnement des images en 8x8 pixels
+        int[][] image1 = GestionnaireImages.toPixels(
+                GestionnaireImages.redimensionner(GestionnaireImages.lireImage(chemin1), 8, 8));
+        int[][] image2 = GestionnaireImages.toPixels(
+                GestionnaireImages.redimensionner(GestionnaireImages.lireImage(chemin2), 8, 8));
 
-        double moyenne1; double moyenne2; int[][] hachage1; int[][] hachage2;
+        // Étape 2 : Calcul de la luminance moyenne de chaque image
+        double moyenne1 = calculMoyenne(image1);
+        double moyenne2 = calculMoyenne(image2);
 
+        // Étape 3 : Génération du hachage (0 ou 1) pour chaque pixel
+        int[][] hachage1 = calculTabHachage(image1, moyenne1);
+        int[][] hachage2 = calculTabHachage(image2, moyenne2);
 
-        moyenne1 = calculMoyenne(image1);
-        moyenne2 = calculMoyenne(image2);
-
-        hachage1 = calculTabHachage(image1,moyenne1);
-        hachage2 = calculTabHachage(image2, moyenne2);
-
+        // Étape 4 : Comparaison des deux tableaux pour determiner le nombre de bit différents
         int differences = 0;
-
-        for (int i = 0; i < image1.length; i++) {
-            for (int j = 0; j < image1[0].length; j++) {
-                if (hachage1[i][j] != hachage2[i][j]){
+        for (int i = 0; i < hachage1.length; i++) {
+            for (int j = 0; j < hachage1[0].length; j++) {
+                if (hachage1[i][j] != hachage2[i][j]) {
                     differences++;
                 }
             }
         }
 
-        if (isPixelFaible() && differences <= 10){
-            return true;
-        }else return !isPixelFaible() && differences <= 15;
+        // Étape 5 : Vérification selon le seuil de tolérance
+        if (isToleranceFaible()) {
+            return differences <= 10;
+        } else {
+            return differences <= 15;
+        }
     }
 
-    public double calculMoyenne(int[][] tab){
+    /**
+     * Calcule la moyenne de luminance (niveau de gris) d'une image.
+     *
+     * @param tab Tableaux de pixels en niveaux de gris
+     * @return Moyenne arithmétique des valeurs
+     */
+    public double calculMoyenne(int[][] tab) {
         int somme = 0;
-
-        for(int[] i : tab){
-            for (int j = 0; j < tab[0].length; j++) {
-                somme += i[j];
+        for (int[] ligne : tab) {
+            for (int pixel : ligne) {
+                somme += pixel;
             }
         }
-        return (double) somme /(tab.length * tab[0].length);
+        return (double) somme / (tab.length * tab[0].length);
     }
 
-    public int[][] calculTabHachage(int[][] tab, double moyenne){
-        for (int i = 0; i < tab.length; i++){
+    /**
+     * Génère le tableau de hachage à partir d'une image et de sa moyenne luminance.
+     *
+     * @param tab     Matrice de pixels
+     * @param moyenne Moyenne de luminance
+     * @return Matrice binaire (0 ou 1)
+     */
+    public int[][] calculTabHachage(int[][] tab, double moyenne) {
+        int[][] hachage = new int[tab.length][tab[0].length];
+        for (int i = 0; i < tab.length; i++) {
             for (int j = 0; j < tab[0].length; j++) {
-                if (tab[i][j] <= moyenne){
-                    tab[i][j] = 0;
-                }else tab[i][j] = 1;
+                hachage[i][j] = (tab[i][j] <= moyenne) ? 0 : 1;
             }
         }
-        return tab;
+        return hachage;
     }
 }

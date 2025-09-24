@@ -2,45 +2,76 @@ package ca.qc.bdeb.sim.tp1photorama;
 
 import java.io.IOException;
 
-public class ComparateurImagesPixels extends ComparateurImages{
+/**
+ * Comparateur d'images basé sur les pixels individuels.
+ * Compare la différence de luminosité pixel par pixel.
+ */
+public class ComparateurImagesPixels extends ComparateurImages {
+
+    // Accès au paramètre de tolérance défini dans la classe parente
     @Override
-    public boolean isPixelFaible() {
-        return super.isPixelFaible();
+    public boolean isToleranceFaible() {
+        return super.isToleranceFaible();
     }
 
     @Override
-    public void setPixelFaible(boolean pixelFaible) {
-        super.setPixelFaible(pixelFaible);
+    public void setToleranceFaible(boolean toleranceFaible) {
+        super.setToleranceFaible(toleranceFaible);
     }
 
+    /**
+     * Compare deux images pixel par pixel et détermine si elles sont similaires.
+     *
+     * @param chemin1 Chemin vers la première image
+     * @param chemin2 Chemin vers la deuxième image
+     * @return true si les images sont similaires selon le seuil de tolérance
+     * @throws IOException si une image ne peut pas être lue
+     */
     @Override
     public boolean imagesSimilaires(String chemin1, String chemin2) throws IOException {
-        //Convertissement des images en tableau de pixel à l'aide de la classe GestionnaireImgaes
-            int[][] image1 = GestionnaireImages.toPixels(GestionnaireImages.lireImage(chemin1));
-            int[][] image2 = GestionnaireImages.toPixels(GestionnaireImages.lireImage(chemin2));
+        // Lecture et transformation des images en tableaux de pixels
+        int[][] image1 = GestionnaireImages.toPixels(GestionnaireImages.lireImage(chemin1));
+        int[][] image2 = GestionnaireImages.toPixels(GestionnaireImages.lireImage(chemin2));
 
-            double pourcentageDifference;
-            int nbrPixelDifferent = 0;
+        // Vérifie que les images ont la même dimension
+        if ((image1.length != image2.length) || (image1[0].length != image2[0].length)) {
+            return false;
+        }
 
-            if ((image1.length * image1[0].length) != (image2.length * image2[0].length)){
-                return false;
-            }
+        // Méthode qui retourne le pourcentage de différence
+        double pourcentageDifference = calculPourcentageDifference(image1, image2);
 
+        // Retourne true si les images sont similaires selon la tolérance
+        if (isToleranceFaible()) {
+            return pourcentageDifference <= 10;
+        } else {
+            return pourcentageDifference <= 40;
+        }
+    }
+
+    /**
+     * Calcule le pourcentage de différence en comparant les deux tableaux
+     *
+     * @param image1 Tableaux en pixel de l'image 1
+     * @param image2 Tableaux en pixel de l'image 2
+     * @return le pourcentage de différence pour déterminer la similitude des images
+     */
+    private double calculPourcentageDifference(int[][] image1, int[][] image2) {
+        int nbrPixelDifferent = 0;
+
+        // Parcourt les pixels et compte ceux qui dépassent le seuil de tolérance
         for (int i = 0; i < image1.length; i++) {
-            for (int j = 0; j < image1[0].length ; j++) {
+            for (int j = 0; j < image1[0].length; j++) {
                 int difference = Math.abs(image1[i][j] - image2[i][j]);
-                if (isPixelFaible() && difference > 20){
+                if (isToleranceFaible() && difference > 20) {
                     nbrPixelDifferent++;
-                } else if (!isPixelFaible() && difference > 30) {
+                } else if (!isToleranceFaible() && difference > 30) {
                     nbrPixelDifferent++;
                 }
             }
         }
 
-        pourcentageDifference = ((double) nbrPixelDifferent /(image1.length * image1[0].length)) * 100;
-
-        if (isPixelFaible() && pourcentageDifference > 10){
-            return false;
-        } else return !isPixelFaible() && pourcentageDifference > 40;
+        // Calcule et retourne le pourcentage de pixels différents
+        return ((double) nbrPixelDifferent / (image1.length * image1[0].length)) * 100;
     }
 }
