@@ -27,7 +27,7 @@ tasks.withType<JavaCompile> {
 
 application {
     mainModule.set("ca.qc.bdeb.sim.tp1photorama")
-    mainClass.set("ca.qc.bdeb.sim.tp1photorama.HelloApplication")
+    mainClass.set("ca.qc.bdeb.sim.tp1photorama.MainJavaFX")
 }
 
 javafx {
