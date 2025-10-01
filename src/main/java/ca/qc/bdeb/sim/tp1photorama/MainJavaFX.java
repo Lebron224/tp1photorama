@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 
 public class MainJavaFX extends Application {
     private Gallerie gallerieImages;
@@ -34,6 +35,7 @@ public class MainJavaFX extends Application {
         viewLogo.setPreserveRatio(true);
         viewLogo.setFitHeight(50);
         var viewPolaroid = new ImageView(polaroid);
+        viewPolaroid.setPreserveRatio(true); viewPolaroid.setFitHeight(350);
 
         var hbox = new HBox();
 
@@ -51,7 +53,16 @@ public class MainJavaFX extends Application {
         var texte2 = new Text("Detection de doublons:");
         vbox2.getChildren().add(texte); vbox2.getChildren().add(texte2);
 
-        var choix = new ChoiceBox<>();
+        ChoiceBox<String> choix = new ChoiceBox<>();
+        choix.getItems().addAll(null,"Pixels","Hachage (Moyenne)","Hachage (Différences)");
+        choix.setConverter(new StringConverter<>(){
+            @Override
+            public String toString(String s) { return (s == null) ? "Choisissez une option..." : s; }
+
+            @Override
+            public String fromString(String s) { return null; }
+        });
+
         vbox2.getChildren().add(choix);
 
         var texte3 = new Text("Tolérance aux différences:");
@@ -71,7 +82,9 @@ public class MainJavaFX extends Application {
 
         vbox.getChildren().add(vbox2); vbox.setSpacing(30);
 
-        root.setLeft(vbox); root.setLayoutX(20); root.setLayoutY(30);
+        root.getChildren().add(vbox); vbox.setLayoutX(30); vbox.setLayoutY(40);
+
+        root.getChildren().add(viewPolaroid); viewPolaroid.setY(15); viewPolaroid.setX(400);
 
 
 
