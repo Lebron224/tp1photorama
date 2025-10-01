@@ -3,9 +3,7 @@ package ca.qc.bdeb.sim.tp1photorama;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -44,26 +42,34 @@ public class MainJavaFX extends Application {
         hbox.getChildren().add(viewLogo); hbox.getChildren().add(titre);
         vbox.getChildren().add(hbox);
 
-        vbox.setSpacing(15);
+        var vbox2 = new VBox();
+
+
+        vbox2.setSpacing(5);
+        vbox2.setAlignment(Pos.CENTER);
         var texte = new Text("Ouvrir une gallerie"); texte.setFont(Font.font(20));
         var texte2 = new Text("Detection de doublons:");
-        vbox.getChildren().add(texte); vbox.getChildren().add(texte2);
+        vbox2.getChildren().add(texte); vbox2.getChildren().add(texte2);
 
         var choix = new ChoiceBox<>();
-        vbox.getChildren().add(choix);
+        vbox2.getChildren().add(choix);
 
         var texte3 = new Text("Tolérance aux différences:");
-        vbox.getChildren().add(texte3);
+        vbox2.getChildren().add(texte3);
 
         var hbox2 = new HBox();
 
-        var toleFaible = new CheckBox("Faible");
-        var toleEleve = new CheckBox("Élevée");
-        hbox2.getChildren().add(toleFaible); hbox2.getChildren().add(toleEleve);
-        vbox.getChildren().add(hbox2);
+        var groupButton = new ToggleGroup();
+        var toleFaible = new RadioButton("Faible");
+        var toleEleve = new RadioButton("Élevée");
+        toleFaible.setToggleGroup(groupButton); toleEleve.setToggleGroup(groupButton);
+        hbox2.getChildren().add(toleFaible); hbox2.getChildren().add(toleEleve); hbox2.setAlignment(Pos.CENTER);
+        vbox2.getChildren().add(hbox2);
 
         var boutton = new Button("Ouvrir un dossier...");
-        vbox.getChildren().add(boutton);
+        vbox2.getChildren().add(boutton);
+
+        vbox.getChildren().add(vbox2); vbox.setSpacing(30);
 
         root.setLeft(vbox); root.setLayoutX(20); root.setLayoutY(30);
 
