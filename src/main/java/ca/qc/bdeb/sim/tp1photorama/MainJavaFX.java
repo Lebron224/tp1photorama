@@ -101,7 +101,13 @@ public class MainJavaFX extends Application {
         HBox boutonsTolerance = creerBoutonsTolerance();
 
         Button boutonOuvrirDossier = new Button("Ouvrir un dossier...");
-        boutonOuvrirDossier.setOnAction(event -> ouvrirGalerie());
+        boutonOuvrirDossier.setOnAction(event -> {
+            try {
+                ouvrirGalerie();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         sectionGalerie.getChildren().addAll(
                 titreGalerie, texteDetectionDoublons, choixDetection, texteTolerance, boutonsTolerance, boutonOuvrirDossier
@@ -161,24 +167,22 @@ public class MainJavaFX extends Application {
     private void gererChoixDetection(String choix) {
         switch (choix) {
             case "Pixels":
-                comparateur = new ComparateurImagesPixels();
+                this.comparateur = new ComparateurImagesPixels();
                 break;
             case "Hachage (Moyenne)":
-                comparateur = new ComparateurImagesHachageMoyenne();
+                this.comparateur = new ComparateurImagesHachageMoyenne();
                 break;
             case "Hachage (Différences)":
-                comparateur = new ComparateurImagesHachageDifference();
-                break;
-            case null, default:
-                afficherErreur("Veuillez choisir une option...");
+                this.comparateur = new ComparateurImagesHachageDifference();
                 break;
         }
     }
 
-    private void ouvrirGalerie() {
+    private void ouvrirGalerie() throws IOException {
         String cheminDossier = choisirDossier();
         if (cheminDossier != null) {
-            // Logique pour gérer le dossier sélectionné
+            this.gallerie = new Gallerie(cheminDossier,comparateur);
+            afficherImages(cheminDossier);
         }
     }
 
@@ -197,5 +201,9 @@ public class MainJavaFX extends Application {
     private void afficherErreur(String message) {
         Alert alerte = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
         alerte.showAndWait();
+    }
+
+    private void afficherImages(String dossier){
+
     }
 }
