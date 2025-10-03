@@ -86,6 +86,32 @@ public class MainJavaFX extends Application {
 
         root.getChildren().add(viewPolaroid); viewPolaroid.setY(15); viewPolaroid.setX(400);
 
+        choix.setOnAction((actionEvent -> {
+            switch (choix.getValue()){
+                case "Pixels":
+                    this.gallerieImages.setComparateur(new ComparateurImagesPixels());
+                    break;
+                case "Hachage (Moyenne)":
+                    this.gallerieImages.setComparateur(new ComparateurImagesHachageMoyenne());
+                    break;
+                case "Hachage (Différences)":
+                    this.gallerieImages.setComparateur(new ComparateurImagesHachageDifference());
+                    break;
+            }
+        }));
+
+        toleFaible.setOnAction((actionEvent -> {
+
+        }));
+
+        toleEleve.setOnAction((actionEvent -> {
+
+        }));
+
+
+
+
+
 
 
 

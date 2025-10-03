@@ -1,17 +1,21 @@
 package ca.qc.bdeb.sim.tp1photorama;
 
-import java.io.IOException;
 
 public class MainCmd {
     public static void main(String[] args) {
         ComparateurImages comp = new ComparateurImagesPixels();
-        try {
-            boolean similaire = comp.imagesSimilaires("airbnb-mini/b1.jpg","airbnb-mini/b3.jpg");
-            if (similaire){
-                System.out.println("Similaire");
-            }else System.out.println("T crasse tu sais pas code");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        Object[][] debug = {
+            {5,0.2,"debogage/pixels1.png","debogage/pixels2.png"},
+            {5,0.2,"debogage/pixels1.png","debogage/pixels3.png"},
+            {5,0.2,"debogage/pixels1.png","debogage/pixels4.png"},
+            {5,0.5,"debogage/pixels1.png","debogage/pixels4.png"},
+            {128,0.49,"debogage/pixels1.png","debogage/pixels4.png"},
+            {128,0.5,"debogage/pixels1.png","debogage/pixels4.png"},
+            {128,0.51,"debogage/pixels1.png","debogage/pixels4.png"}
+        };
+
+        for (Object[] o : debug){
+
         }
 
     }

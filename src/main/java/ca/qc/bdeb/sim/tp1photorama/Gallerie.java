@@ -130,4 +130,12 @@ public class Gallerie {
 
         return groupesImages;
     }
+
+    public ComparateurImages getComparateur() {
+        return comparateur;
+    }
+
+    public void setComparateur(ComparateurImages comparateur) {
+        this.comparateur = comparateur;
+    }
 }

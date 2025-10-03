@@ -8,18 +8,6 @@ import java.io.IOException;
  * puis compare les hachages binaires.
  */
 public class ComparateurImagesHachageMoyenne extends ComparateurImages {
-
-    // Accès au paramètre de tolérance défini dans la classe parente
-    @Override
-    public boolean isToleranceFaible() {
-        return super.isToleranceFaible();
-    }
-
-    @Override
-    public void setToleranceFaible(boolean toleranceFaible) {
-        super.setToleranceFaible(toleranceFaible);
-    }
-
     /**
      * Compare deux images à l'aide de leur hachage moyen.
      *
@@ -55,11 +43,7 @@ public class ComparateurImagesHachageMoyenne extends ComparateurImages {
         }
 
         // Étape 5 : Vérification selon le seuil de tolérance
-        if (isToleranceFaible()) {
-            return differences <= 10;
-        } else {
-            return differences <= 15;
-        }
+        return differences <= getMaxCases();
     }
 
     /**

@@ -7,18 +7,6 @@ import java.io.IOException;
  * Compare la différence de luminosité pixel par pixel.
  */
 public class ComparateurImagesPixels extends ComparateurImages {
-
-    // Accès au paramètre de tolérance défini dans la classe parente
-    @Override
-    public boolean isToleranceFaible() {
-        return super.isToleranceFaible();
-    }
-
-    @Override
-    public void setToleranceFaible(boolean toleranceFaible) {
-        super.setToleranceFaible(toleranceFaible);
-    }
-
     /**
      * Compare deux images pixel par pixel et détermine si elles sont similaires.
      *
@@ -42,11 +30,7 @@ public class ComparateurImagesPixels extends ComparateurImages {
         double pourcentageDifference = calculPourcentageDifference(image1, image2);
 
         // Retourne true si les images sont similaires selon la tolérance
-        if (isToleranceFaible()) {
-            return pourcentageDifference <= 10;
-        } else {
-            return pourcentageDifference <= 40;
-        }
+        return pourcentageDifference <= getMaxPourcentage();
     }
 
     /**
@@ -63,9 +47,7 @@ public class ComparateurImagesPixels extends ComparateurImages {
         for (int i = 0; i < image1.length; i++) {
             for (int j = 0; j < image1[0].length; j++) {
                 int difference = Math.abs(image1[i][j] - image2[i][j]);
-                if (isToleranceFaible() && difference > 20) {
-                    nbrPixelDifferent++;
-                } else if (!isToleranceFaible() && difference > 30) {
+                if (difference > getSeuilDifference()) {
                     nbrPixelDifferent++;
                 }
             }

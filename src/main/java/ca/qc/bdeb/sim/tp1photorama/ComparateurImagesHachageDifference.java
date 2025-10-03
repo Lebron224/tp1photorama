@@ -7,18 +7,6 @@ import java.io.IOException;
  * On compare chaque pixel à celui juste en dessous, dans une image redimensionnée à 8x9.
  */
 public class ComparateurImagesHachageDifference extends ComparateurImages {
-
-    // Accès au paramètre de tolérance hérité de la classe parente
-    @Override
-    public boolean isToleranceFaible() {
-        return super.isToleranceFaible();
-    }
-
-    @Override
-    public void setToleranceFaible(boolean toleranceFaible) {
-        super.setToleranceFaible(toleranceFaible);
-    }
-
     /**
      * Compare deux images en utilisant le hachage par différence verticale.
      * Redimensionne les images à 8x9, calcule le hachage 8x8, puis compare les hachages.
@@ -51,11 +39,7 @@ public class ComparateurImagesHachageDifference extends ComparateurImages {
         }
 
         // Retourne true si les différences sont en dessous du seuil de tolérance
-        if (isToleranceFaible()) {
-            return differences <= 10;
-        } else {
-            return differences <= 15;
-        }
+        return differences <= getMaxCases();
     }
 
     /**
