@@ -17,6 +17,14 @@ public class Gallerie {
     /** Objet utilisé pour comparer deux images et déterminer si elles sont similaires. */
     private ComparateurImages comparateur;
 
+    public ComparateurImages getComparateur() {
+        return comparateur;
+    }
+
+    public void setComparateur(ComparateurImages comparateur) {
+        this.comparateur = comparateur;
+    }
+
     /** Liste de groupes d'images similaires. Chaque groupe est une liste de noms de fichiers. */
     private ArrayList<ArrayList<String>> groupesImages;
 
@@ -129,13 +137,5 @@ public class Gallerie {
         }
 
         return groupesImages;
-    }
-
-    public ComparateurImages getComparateur() {
-        return comparateur;
-    }
-
-    public void setComparateur(ComparateurImages comparateur) {
-        this.comparateur = comparateur;
     }
 }
