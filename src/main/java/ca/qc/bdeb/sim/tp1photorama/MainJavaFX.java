@@ -34,7 +34,7 @@ public class MainJavaFX extends Application {
     }
 
     private final BorderPane root = new BorderPane();
-    private final Scene scene = new Scene(root, 900, 600);
+    private final Scene scene = new Scene(root, 900, 650);
 
     @Override
     public void start(Stage stage) {
@@ -57,6 +57,8 @@ public class MainJavaFX extends Application {
                 Platform.exit();
             }
         }));
+
+        root.setOnMouseClicked(mouseEvent -> effacerErreur());
 
         // Affichage de la scène
         stage.setTitle("Photorama");
@@ -125,6 +127,8 @@ public class MainJavaFX extends Application {
                 ouvrirGalerie();
             } catch (IOException e) {
                 afficherErreur("Erreur lors de l'ouverture de la gallerie d'images");
+            } catch (Exception e){
+                afficherErreur("Erreur lors de l'ouverture du dossier");
             }
         });
 
@@ -153,7 +157,7 @@ public class MainJavaFX extends Application {
         toleranceFaible.setToggleGroup(groupeBoutton);
         toleranceElevee.setToggleGroup(groupeBoutton);
 
-        // Pré-sélectionner "Faible"
+        // Présélectionner "Faible"
         toleranceFaible.setSelected(true);
 
         hbox.getChildren().addAll(toleranceFaible, toleranceElevee);
@@ -221,13 +225,12 @@ public class MainJavaFX extends Application {
     private void ouvrirGalerie() throws IOException {
         String cheminDossier = choisirDossier();
         if (cheminDossier != null) {
+            this.gallerie = new Gallerie(cheminDossier, comparateur);
             if (gallerieBox != null) {
                 gallerieBox.getChildren().clear();
             } else if (doublonsBox != null) {
                 doublonsBox.getChildren().clear();
             }
-
-            this.gallerie = new Gallerie(cheminDossier, comparateur);
             root.getChildren().remove(vuePolaroid);
             afficherImages();
         }
@@ -279,7 +282,10 @@ public class MainJavaFX extends Application {
         centerImageView.setFitWidth(565);
         centerImageView.setFitHeight(350);
         centerImageView.setImage(new Image("file:"+tab.getFirst().getFirst()));
-        afficherDoublons(tab, centerImageView);
+        if (doublonsBox != null) {
+            doublonsBox.getChildren().clear();
+        }
+        afficherDoublons(tab, centerImageView,0);
 
 
         // HBox pour les miniatures
@@ -299,12 +305,12 @@ public class MainJavaFX extends Application {
 
             photoBox.getChildren().add(imgView);
 
-            // Quand on clique sur une image
+            // Quand on clique sur une image.
             int index = i;
             imgView.setOnMouseClicked(e -> {
                 centerImageView.setImage(new Image("file:" + tab.get(index).getFirst()));
                 doublonsBox.getChildren().clear();
-                afficherDoublons(tab, centerImageView);
+                afficherDoublons(tab, centerImageView, index);
             });
         }
 
@@ -326,40 +332,24 @@ public class MainJavaFX extends Application {
         return imgView;
     }
 
-    private void afficherDoublons(ArrayList<ArrayList<String>> groupes, ImageView centerImageView) {
-        var boxDoublons = new HBox(10);
+    private void afficherDoublons(ArrayList<ArrayList<String>> groupes, ImageView centerImageView, int index) {
+        var boxDoublons = new HBox(5);
         boxDoublons.setAlignment(Pos.CENTER);
-        boxDoublons.setPadding(new Insets(10));
+        boxDoublons.setPadding(new Insets(5));
 
-        // Récupère l’image centrale
-        var imageCentrale = centerImageView.getImage();
-        if (imageCentrale == null) return;
+        var scrollPaneDoublons = new ScrollPane(boxDoublons);
+        scrollPaneDoublons.setMinViewportHeight(50); scrollPaneDoublons.setMinViewportWidth(500);
+        scrollPaneDoublons.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPaneDoublons.setStyle("-fx-background-color: transparent;");
 
-        // 🔹 Trouver le chemin correspondant à l’image centrale
-        String urlImageCentrale = imageCentrale.getUrl(); // ex: file:/C:/images/a.png
-        if (urlImageCentrale == null) return;
+        for (int i = 0; i < groupes.get(index).size(); i++) {
+            var imgView = new ImageView(new Image("file:" + groupes.get(index).get(i)));
+            imgView.setPreserveRatio(true);
+            imgView.setFitWidth(100);
+            imgView.setFitHeight(50);
+            imgView.setOnMouseClicked(e -> centerImageView.setImage(imgView.getImage()));
 
-        // 🔹 Trouver le groupe de doublons qui contient cette image
-        for (ArrayList<String> groupe : groupes) {
-            for (String chemin : groupe) {
-                if (urlImageCentrale.equalsIgnoreCase("file:"+chemin)) { // compare par nom ou chemin relatif
-                    // Ce groupe est celui de l’image centrale
-                    for (String doublon : groupe) {
-                        var imgView = new ImageView(new Image("file:" + doublon));
-                        imgView.setPreserveRatio(true);
-                        imgView.setFitWidth(120);
-                        imgView.setFitHeight(80);
-
-                        // Clique sur un doublon pour le mettre au centre
-                        imgView.setOnMouseClicked(e ->
-                                centerImageView.setImage(new Image("file:" + doublon))
-                        );
-
-                        boxDoublons.getChildren().add(imgView);
-                    }
-                    break; // on arrête après avoir trouvé le bon groupe
-                }
-            }
+            boxDoublons.getChildren().add(imgView);
         }
 
         // 🔹 Affiche les doublons en bas
@@ -367,7 +357,7 @@ public class MainJavaFX extends Application {
         textDoublons.setFill(Color.DARKBLUE);
         textDoublons.setFont(Font.font("Georgia", FontWeight.BOLD, 10));
 
-        this.doublonsBox = new VBox(5, textDoublons, boxDoublons);
+        this.doublonsBox = new VBox(5, textDoublons, scrollPaneDoublons);
         doublonsBox.setPadding(new Insets(10));
         doublonsBox.setLayoutX(350);    doublonsBox.setLayoutY(500);
 
