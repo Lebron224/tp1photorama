@@ -3,16 +3,19 @@ package ca.qc.bdeb.sim.tp1photorama;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -21,27 +24,28 @@ import java.io.File;
 import java.io.IOException;
 
 public class MainJavaFX extends Application {
-
     private Gallerie gallerie;
-    private ComparateurImages comparateur;
+    private ComparateurImages comparateur = new ComparateurImagesPixels();
 
     public static void main(String[] args) {
         launch(args);
     }
 
+    private BorderPane root = new BorderPane();
+    private Scene scene = new Scene(root, 900, 600);
+
     @Override
     public void start(Stage stage) throws IOException {
-        var root = new BorderPane();
-        var scene = new Scene(root, 900, 600);
-
         // Création de l'interface utilisateur
         VBox miseEnPagePrincipale = creerMiseEnPagePrincipale();
-        miseEnPagePrincipale.setLayoutY(30);    miseEnPagePrincipale.setLayoutX(30);
+        miseEnPagePrincipale.setLayoutY(30);
+        miseEnPagePrincipale.setLayoutX(30);
         root.getChildren().add(miseEnPagePrincipale);
 
         // Affichage de l'image polaroid
         ImageView vuePolaroid = creerVuePolaroid();
-        vuePolaroid.setX(400);  vuePolaroid.setY(15);
+        vuePolaroid.setX(400);
+        vuePolaroid.setY(15);
         root.getChildren().add(vuePolaroid);
 
         // Affichage de la scène
@@ -93,7 +97,10 @@ public class MainJavaFX extends Application {
         Text texteDetectionDoublons = new Text("Détection de doublons:");
 
         ChoiceBox<String> choixDetection = creerChoixDetection();
-        choixDetection.setOnAction(actionEvent -> gererChoixDetection(choixDetection.getValue()));
+        choixDetection.setOnAction(actionEvent -> {
+            effacerErreur();
+            gererChoixDetection(choixDetection.getValue());
+        });
 
 
         Text texteTolerance = new Text("Tolérance aux différences:");
@@ -102,10 +109,11 @@ public class MainJavaFX extends Application {
 
         Button boutonOuvrirDossier = new Button("Ouvrir un dossier...");
         boutonOuvrirDossier.setOnAction(event -> {
+            effacerErreur();
             try {
                 ouvrirGalerie();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                afficherErreur("Erreur lors de l'ouverture de la gallerie d'images");
             }
         });
 
@@ -118,18 +126,8 @@ public class MainJavaFX extends Application {
 
     private ChoiceBox<String> creerChoixDetection() {
         ChoiceBox<String> choix = new ChoiceBox<>();
-        choix.getItems().addAll(null, "Pixels", "Hachage (Moyenne)", "Hachage (Différences)");
-        choix.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(String s) {
-                return (s == null) ? "Choisissez une option..." : s;
-            }
-
-            @Override
-            public String fromString(String s) {
-                return null;
-            }
-        });
+        choix.getItems().addAll("Pixels", "Hachage (Moyenne)", "Hachage (Différences)");
+        choix.setValue(choix.getItems().getFirst());
         return choix;
     }
 
@@ -144,14 +142,18 @@ public class MainJavaFX extends Application {
         toleranceFaible.setToggleGroup(groupeBoutton);
         toleranceElevee.setToggleGroup(groupeBoutton);
 
+        // Pré-sélectionner "Faible"
+        toleranceFaible.setSelected(true);
+
         hbox.getChildren().addAll(toleranceFaible, toleranceElevee);
 
-        groupeBoutton.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-            @Override
-            public void changed(ObservableValue<? extends Toggle> observableValue, Toggle toggle, Toggle t1) {
+        // On délègue le traitement à une méthode séparée
+        groupeBoutton.selectedToggleProperty().addListener(
+                (obs, oldToggle, newToggle) -> gererChangementTolerance(groupeBoutton)
+        );
 
-            }
-        });
+        // Appeler manuellement une première fois pour initialiser comparateur
+        gererChangementTolerance(groupeBoutton);
 
         return hbox;
     }
@@ -178,6 +180,26 @@ public class MainJavaFX extends Application {
         }
     }
 
+    private void gererChangementTolerance(ToggleGroup groupeBoutton) {
+        RadioButton rb = (RadioButton) groupeBoutton.getSelectedToggle();
+        String choix = rb.getText();
+        if (comparateur instanceof ComparateurImagesPixels) {
+            if (choix.equals("Faible")) {
+                comparateur.setSeuilDifference(20);
+                comparateur.setMaxPourcentage(10);
+            } else if (choix.equals("Élevée")) {
+                comparateur.setSeuilDifference(30);
+                comparateur.setMaxPourcentage(40);
+            }
+        } else {
+            if (choix.equals("Faible")) {
+                comparateur.setMaxCases(10);
+            } else comparateur.setMaxCases(15);
+        }
+        effacerErreur();
+    }
+
+
     private void ouvrirGalerie() throws IOException {
         String cheminDossier = choisirDossier();
         if (cheminDossier != null) {
@@ -199,8 +221,23 @@ public class MainJavaFX extends Application {
     }
 
     private void afficherErreur(String message) {
-        Alert alerte = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
-        alerte.showAndWait();
+        var messageErreur = new Text(message);
+        messageErreur.setFont(Font.font("Verdana", FontWeight.BOLD, 20));
+        messageErreur.setFill(Color.RED); // texte rouge vif
+
+        // Conteneur avec fond rouge pâle
+        HBox box = new HBox(messageErreur);
+        box.setAlignment(Pos.CENTER);
+        box.setPadding(new Insets(10)); // un peu d’espace autour du texte
+        box.setBackground(new Background(
+                new BackgroundFill(Color.web("#FFCCCC"), CornerRadii.EMPTY, Insets.EMPTY)
+        ));
+
+        root.setBottom(box);
+    }
+
+    private void effacerErreur() {
+        root.setBottom(null);
     }
 
     private void afficherImages(String dossier){
