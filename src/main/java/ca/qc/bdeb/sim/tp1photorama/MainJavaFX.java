@@ -1,12 +1,14 @@
 package ca.qc.bdeb.sim.tp1photorama;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -17,8 +19,12 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class MainJavaFX extends Application {
+    private VBox gallerieBox;
+    private VBox doublonsBox;
+    private final ImageView vuePolaroid = creerVuePolaroid();
     private boolean isToleranceElevee = false;
     private Gallerie gallerie;
     private ComparateurImages comparateur = new ComparateurImagesPixels();
@@ -31,7 +37,7 @@ public class MainJavaFX extends Application {
     private final Scene scene = new Scene(root, 900, 600);
 
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) {
         // Création de l'interface utilisateur
         VBox miseEnPagePrincipale = creerMiseEnPagePrincipale();
         miseEnPagePrincipale.setLayoutY(30);
@@ -39,10 +45,18 @@ public class MainJavaFX extends Application {
         root.getChildren().add(miseEnPagePrincipale);
 
         // Affichage de l'image polaroid
-        ImageView vuePolaroid = creerVuePolaroid();
+
         vuePolaroid.setX(400);
         vuePolaroid.setY(15);
         root.getChildren().add(vuePolaroid);
+
+
+        // Quitter le programme avec la touche Escape
+        root.setOnKeyPressed((keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ESCAPE) {
+                Platform.exit();
+            }
+        }));
 
         // Affichage de la scène
         stage.setTitle("Photorama");
@@ -76,7 +90,8 @@ public class MainJavaFX extends Application {
         vueLogo.setFitHeight(50);
 
         Text titre = new Text("Photorama");
-        titre.setFont(Font.font(30));
+        titre.setFont(Font.font("Georgia", FontWeight.BOLD, 30));
+        titre.setFill(Color.DARKBLUE);
 
         enTete.getChildren().addAll(vueLogo, titre);
         return enTete;
@@ -145,7 +160,7 @@ public class MainJavaFX extends Application {
 
         // On délègue le traitement à une méthode séparée
         groupeBoutton.selectedToggleProperty().addListener(
-                (obs, oldToggle, newToggle) -> gererChangementTolerance(groupeBoutton)
+                (obs, ancienToggle, nouveauToggle) -> gererChangementTolerance(groupeBoutton)
         );
 
         // Appeler manuellement une première fois pour initialiser comparateur
@@ -191,7 +206,7 @@ public class MainJavaFX extends Application {
             if (!isToleranceElevee) { // Faible
                 comparateur.setSeuilDifference(20);
                 comparateur.setMaxPourcentage(10);
-            } else  {  // Élevée
+            } else {  // Élevée
                 comparateur.setSeuilDifference(30);
                 comparateur.setMaxPourcentage(40);
             }
@@ -206,7 +221,14 @@ public class MainJavaFX extends Application {
     private void ouvrirGalerie() throws IOException {
         String cheminDossier = choisirDossier();
         if (cheminDossier != null) {
-            this.gallerie = new Gallerie(cheminDossier,comparateur);
+            if (gallerieBox != null) {
+                gallerieBox.getChildren().clear();
+            } else if (doublonsBox != null) {
+                doublonsBox.getChildren().clear();
+            }
+
+            this.gallerie = new Gallerie(cheminDossier, comparateur);
+            root.getChildren().remove(vuePolaroid);
             afficherImages();
         }
     }
@@ -243,7 +265,113 @@ public class MainJavaFX extends Application {
         root.setBottom(null);
     }
 
-    private void afficherImages(){
+    private void afficherImages() {
+        ArrayList<ArrayList<String>> tab = gallerie.getGroupesImages();
 
+        // Titre
+        Text text = new Text("Mes photos (" + tab.size() + ")");
+        text.setFont(Font.font("Georgia", FontWeight.BOLD, 15));
+        text.setFill(Color.DARKBLUE);
+
+        // Image centrale
+        var centerImageView = new ImageView();
+        centerImageView.setPreserveRatio(true);
+        centerImageView.setFitWidth(565);
+        centerImageView.setFitHeight(350);
+        centerImageView.setImage(new Image("file:"+tab.getFirst().getFirst()));
+        afficherDoublons(tab, centerImageView);
+
+
+        // HBox pour les miniatures
+        var photoBox = new HBox(10);
+        photoBox.setAlignment(Pos.CENTER);
+        photoBox.setPadding(new Insets(10));
+
+        // ScrollPane pour les miniatures
+        var scrollPane = new ScrollPane(photoBox);
+        scrollPane.setMinViewportHeight(100); scrollPane.setMinViewportWidth(500);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setStyle("-fx-background-color: transparent;");
+
+        // Ajouter les images principales (première de chaque groupe)
+        for (int i = 0; i < tab.size(); i++) {
+            var imgView = getImageView(tab, i);
+
+            photoBox.getChildren().add(imgView);
+
+            // Quand on clique sur une image
+            int index = i;
+            imgView.setOnMouseClicked(e -> {
+                centerImageView.setImage(new Image("file:" + tab.get(index).getFirst()));
+                doublonsBox.getChildren().clear();
+                afficherDoublons(tab, centerImageView);
+            });
+        }
+
+        // Organisation de la mise en page
+        this.gallerieBox = new VBox(5, centerImageView, text, scrollPane);
+        gallerieBox.setAlignment(Pos.CENTER);
+        gallerieBox.setPadding(new Insets(20));
+        gallerieBox.setLayoutX(600);   gallerieBox.setLayoutY(245);
+
+        root.getChildren().add(gallerieBox); // 🔹 affichage dans la fenêtre principale
     }
+
+    private ImageView getImageView(ArrayList<ArrayList<String>> tab, int i) {
+        String chemin = tab.get(i).getFirst();
+        var imgView = new ImageView(new Image("file:" + chemin));
+        imgView.setPreserveRatio(true);
+        imgView.setFitWidth(150);
+        imgView.setFitHeight(100);
+        return imgView;
+    }
+
+    private void afficherDoublons(ArrayList<ArrayList<String>> groupes, ImageView centerImageView) {
+        var boxDoublons = new HBox(10);
+        boxDoublons.setAlignment(Pos.CENTER);
+        boxDoublons.setPadding(new Insets(10));
+
+        // Récupère l’image centrale
+        var imageCentrale = centerImageView.getImage();
+        if (imageCentrale == null) return;
+
+        // 🔹 Trouver le chemin correspondant à l’image centrale
+        String urlImageCentrale = imageCentrale.getUrl(); // ex: file:/C:/images/a.png
+        if (urlImageCentrale == null) return;
+
+        // 🔹 Trouver le groupe de doublons qui contient cette image
+        for (ArrayList<String> groupe : groupes) {
+            for (String chemin : groupe) {
+                if (urlImageCentrale.equalsIgnoreCase("file:"+chemin)) { // compare par nom ou chemin relatif
+                    // Ce groupe est celui de l’image centrale
+                    for (String doublon : groupe) {
+                        var imgView = new ImageView(new Image("file:" + doublon));
+                        imgView.setPreserveRatio(true);
+                        imgView.setFitWidth(120);
+                        imgView.setFitHeight(80);
+
+                        // Clique sur un doublon pour le mettre au centre
+                        imgView.setOnMouseClicked(e ->
+                                centerImageView.setImage(new Image("file:" + doublon))
+                        );
+
+                        boxDoublons.getChildren().add(imgView);
+                    }
+                    break; // on arrête après avoir trouvé le bon groupe
+                }
+            }
+        }
+
+        // 🔹 Affiche les doublons en bas
+        Text textDoublons = new Text("Doublons détectés :");
+        textDoublons.setFill(Color.DARKBLUE);
+        textDoublons.setFont(Font.font("Georgia", FontWeight.BOLD, 10));
+
+        this.doublonsBox = new VBox(5, textDoublons, boxDoublons);
+        doublonsBox.setPadding(new Insets(10));
+        doublonsBox.setLayoutX(350);    doublonsBox.setLayoutY(500);
+
+        root.getChildren().add(doublonsBox);
+    }
+
 }
