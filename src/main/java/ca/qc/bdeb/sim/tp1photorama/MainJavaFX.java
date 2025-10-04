@@ -1,8 +1,6 @@
 package ca.qc.bdeb.sim.tp1photorama;
 
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -11,19 +9,17 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 
 import java.io.File;
 import java.io.IOException;
 
 public class MainJavaFX extends Application {
+    private boolean isToleranceElevee = false;
     private Gallerie gallerie;
     private ComparateurImages comparateur = new ComparateurImagesPixels();
 
@@ -31,8 +27,8 @@ public class MainJavaFX extends Application {
         launch(args);
     }
 
-    private BorderPane root = new BorderPane();
-    private Scene scene = new Scene(root, 900, 600);
+    private final BorderPane root = new BorderPane();
+    private final Scene scene = new Scene(root, 900, 600);
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -178,25 +174,32 @@ public class MainJavaFX extends Application {
                 this.comparateur = new ComparateurImagesHachageDifference();
                 break;
         }
+        appliquerTolerance();
     }
 
     private void gererChangementTolerance(ToggleGroup groupeBoutton) {
         RadioButton rb = (RadioButton) groupeBoutton.getSelectedToggle();
-        String choix = rb.getText();
+
+        isToleranceElevee = rb.getText().equals("Élevée");
+
+        appliquerTolerance();
+        effacerErreur();
+    }
+
+    private void appliquerTolerance() {
         if (comparateur instanceof ComparateurImagesPixels) {
-            if (choix.equals("Faible")) {
+            if (!isToleranceElevee) { // Faible
                 comparateur.setSeuilDifference(20);
                 comparateur.setMaxPourcentage(10);
-            } else if (choix.equals("Élevée")) {
+            } else  {  // Élevée
                 comparateur.setSeuilDifference(30);
                 comparateur.setMaxPourcentage(40);
             }
         } else {
-            if (choix.equals("Faible")) {
+            if (!isToleranceElevee) { // Faible
                 comparateur.setMaxCases(10);
-            } else comparateur.setMaxCases(15);
+            } else comparateur.setMaxCases(15); // Élevée
         }
-        effacerErreur();
     }
 
 
@@ -204,7 +207,7 @@ public class MainJavaFX extends Application {
         String cheminDossier = choisirDossier();
         if (cheminDossier != null) {
             this.gallerie = new Gallerie(cheminDossier,comparateur);
-            afficherImages(cheminDossier);
+            afficherImages();
         }
     }
 
@@ -240,7 +243,7 @@ public class MainJavaFX extends Application {
         root.setBottom(null);
     }
 
-    private void afficherImages(String dossier){
+    private void afficherImages(){
 
     }
 }
