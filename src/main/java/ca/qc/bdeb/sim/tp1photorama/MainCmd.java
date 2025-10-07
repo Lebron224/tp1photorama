@@ -1,7 +1,9 @@
 package ca.qc.bdeb.sim.tp1photorama;
 
 
+import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class MainCmd {
     public static void main(String[] args) throws IOException {
@@ -29,11 +31,7 @@ public class MainCmd {
             System.out.println("seuil="+seuil+", max pourcent="+maxPourcentage+", "+img1+" vs "+img2+" "+resultat);
         }
 
-        String[] debugHachageMoyenne = {
-                "debogage/moyenne-test1.png",
-                "debogage/moyenne-test2.png",
-                "debogage/moyenne-test3.png"
-        };
+        String[] debugHachageMoyenne = {"debogage/moyenne-test1.png", "debogage/moyenne-test2.png", "debogage/moyenne-test3.png"};
         System.out.println("=== 2. Affichage des valeurs de hachage ===");
         for (String s : debugHachageMoyenne){
             System.out.println(s+":");
@@ -48,11 +46,7 @@ public class MainCmd {
             }
         }
 
-        String[] debugHachageDifferences = {
-                "debogage/diff-test1.png",
-                "debogage/diff-test2.png",
-                "debogage/diff-test3.png"
-        };
+        String[] debugHachageDifferences = { "debogage/diff-test1.png", "debogage/diff-test2.png", "debogage/diff-test3.png"};
         for (String s : debugHachageDifferences){
             System.out.println(s+":");
             int[][] tab = compDifference.calculTabHachageUnImage(s);
