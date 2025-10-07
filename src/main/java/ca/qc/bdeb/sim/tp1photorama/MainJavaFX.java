@@ -347,7 +347,7 @@ public class MainJavaFX extends Application {
         scrollPaneDoublons.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPaneDoublons.setStyle("-fx-background-color: transparent;");
 
-        for (int i = 0; i < groupes.get(index).size(); i++) {
+        for (int i = 1; i < groupes.get(index).size(); i++) {
             var imgView = new ImageView(new Image("file:" + groupes.get(index).get(i)));
             imgView.setPreserveRatio(true);
             imgView.setFitWidth(100);
