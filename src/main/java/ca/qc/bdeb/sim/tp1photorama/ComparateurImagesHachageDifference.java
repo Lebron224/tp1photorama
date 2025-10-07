@@ -65,4 +65,9 @@ public class ComparateurImagesHachageDifference extends ComparateurImages {
 
         return hachage;
     }
+
+    public int[][] calculTabHachageUnImage(String chemin) throws IOException{
+        int[][] tab = GestionnaireImages.toPixels(GestionnaireImages.redimensionner(GestionnaireImages.lireImage(chemin),8,9));
+        return calculTabHache(tab);
+    }
 }

@@ -52,7 +52,7 @@ public class ComparateurImagesHachageMoyenne extends ComparateurImages {
      * @param tab Tableaux de pixels en niveaux de gris
      * @return Moyenne arithmétique des valeurs
      */
-    public double calculMoyenne(int[][] tab) {
+    private double calculMoyenne(int[][] tab) {
         int somme = 0;
         for (int[] ligne : tab) {
             for (int pixel : ligne) {
@@ -69,7 +69,7 @@ public class ComparateurImagesHachageMoyenne extends ComparateurImages {
      * @param moyenne Moyenne de luminance
      * @return Matrice binaire (0 ou 1)
      */
-    public int[][] calculTabHachage(int[][] tab, double moyenne) {
+    private int[][] calculTabHachage(int[][] tab, double moyenne) {
         int[][] hachage = new int[tab.length][tab[0].length];
         for (int i = 0; i < tab.length; i++) {
             for (int j = 0; j < tab[0].length; j++) {
@@ -77,5 +77,11 @@ public class ComparateurImagesHachageMoyenne extends ComparateurImages {
             }
         }
         return hachage;
+    }
+
+    public int[][] calculTabHachageUnImage(String chemin) throws IOException{
+        int[][] tab = GestionnaireImages.toPixels(GestionnaireImages.redimensionner(GestionnaireImages.lireImage(chemin),8,8));
+        double moyenne = calculMoyenne(tab);
+        return calculTabHachage(tab, moyenne);
     }
 }
