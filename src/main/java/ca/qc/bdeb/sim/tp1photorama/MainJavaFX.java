@@ -23,10 +23,15 @@ import java.util.ArrayList;
 
 public class MainJavaFX extends Application {
     private VBox gallerieBox;
+
     private VBox doublonsBox;
+
     private final ImageView vuePolaroid = creerVuePolaroid();
+
     private boolean isToleranceElevee = false;
+
     private Gallerie gallerie;
+
     private ComparateurImages comparateur = new ComparateurImagesPixels();
 
     public static void main(String[] args) {
@@ -39,7 +44,7 @@ public class MainJavaFX extends Application {
     @Override
     public void start(Stage stage) {
         // Création de l'interface utilisateur
-        VBox miseEnPagePrincipale = creerMiseEnPagePrincipale();
+        VBox miseEnPagePrincipale = creerRoot();
         miseEnPagePrincipale.setLayoutY(30);
         miseEnPagePrincipale.setLayoutX(30);
         root.getChildren().add(miseEnPagePrincipale);
@@ -66,22 +71,22 @@ public class MainJavaFX extends Application {
         stage.show();
     }
 
-    private VBox creerMiseEnPagePrincipale() {
+    private VBox creerRoot() {
         VBox vbox = new VBox();
         vbox.setSpacing(30);
 
         // Ajout du logo et du titre
-        HBox enTete = creerEnTete();
+        HBox enTete = creerTitre();
         vbox.getChildren().add(enTete);
 
         // Section "Ouvrir une galerie" et options
-        VBox sectionGalerie = creerSectionGalerie();
+        VBox sectionGalerie = creerMenu();
         vbox.getChildren().add(sectionGalerie);
 
         return vbox;
     }
 
-    private HBox creerEnTete() {
+    private HBox creerTitre() {
         HBox enTete = new HBox();
         enTete.setAlignment(Pos.CENTER_LEFT);
         enTete.setSpacing(10);
@@ -99,7 +104,7 @@ public class MainJavaFX extends Application {
         return enTete;
     }
 
-    private VBox creerSectionGalerie() {
+    private VBox creerMenu() {
         VBox sectionGalerie = new VBox();
         sectionGalerie.setSpacing(5);
         sectionGalerie.setAlignment(Pos.CENTER);
@@ -109,10 +114,10 @@ public class MainJavaFX extends Application {
 
         Text texteDetectionDoublons = new Text("Détection de doublons:");
 
-        ChoiceBox<String> choixDetection = creerChoixDetection();
-        choixDetection.setOnAction(actionEvent -> {
+        ChoiceBox<String> choixComparateur = creerChoixComparateur();
+        choixComparateur.setOnAction(actionEvent -> {
             effacerErreur();
-            gererChoixDetection(choixDetection.getValue());
+            gererChoixComparateur(choixComparateur.getValue());
         });
 
 
@@ -124,7 +129,7 @@ public class MainJavaFX extends Application {
         boutonOuvrirDossier.setOnAction(event -> {
             effacerErreur();
             try {
-                ouvrirGalerie();
+                ouvrirNouvelleGalerie();
             } catch (IOException e) {
                 afficherErreur("Erreur lors de l'ouverture de la gallerie d'images");
             } catch (Exception e){
@@ -133,13 +138,13 @@ public class MainJavaFX extends Application {
         });
 
         sectionGalerie.getChildren().addAll(
-                titreGalerie, texteDetectionDoublons, choixDetection, texteTolerance, boutonsTolerance, boutonOuvrirDossier
+                titreGalerie, texteDetectionDoublons, choixComparateur, texteTolerance, boutonsTolerance, boutonOuvrirDossier
         );
 
         return sectionGalerie;
     }
 
-    private ChoiceBox<String> creerChoixDetection() {
+    private ChoiceBox<String> creerChoixComparateur() {
         ChoiceBox<String> choix = new ChoiceBox<>();
         choix.getItems().addAll("Pixels", "Hachage (Moyenne)", "Hachage (Différences)");
         choix.setValue(choix.getItems().getFirst());
@@ -181,7 +186,7 @@ public class MainJavaFX extends Application {
         return vuePolaroid;
     }
 
-    private void gererChoixDetection(String choix) {
+    private void gererChoixComparateur(String choix) {
         switch (choix) {
             case "Pixels":
                 this.comparateur = new ComparateurImagesPixels();
@@ -222,7 +227,7 @@ public class MainJavaFX extends Application {
     }
 
 
-    private void ouvrirGalerie() throws IOException {
+    private void ouvrirNouvelleGalerie() throws IOException {
         String cheminDossier = choisirDossier();
         if (cheminDossier != null) {
             this.gallerie = new Gallerie(cheminDossier, comparateur);
@@ -320,7 +325,7 @@ public class MainJavaFX extends Application {
         gallerieBox.setPadding(new Insets(20));
         gallerieBox.setLayoutX(600);   gallerieBox.setLayoutY(245);
 
-        root.getChildren().add(gallerieBox); // 🔹 affichage dans la fenêtre principale
+        root.getChildren().add(gallerieBox); // affichage dans la fenêtre principale
     }
 
     private ImageView getImageView(ArrayList<ArrayList<String>> tab, int i) {
@@ -352,7 +357,7 @@ public class MainJavaFX extends Application {
             boxDoublons.getChildren().add(imgView);
         }
 
-        // 🔹 Affiche les doublons en bas
+        // Affiche les doublons en bas
         Text textDoublons = new Text("Doublons détectés :");
         textDoublons.setFill(Color.DARKBLUE);
         textDoublons.setFont(Font.font("Georgia", FontWeight.BOLD, 10));
