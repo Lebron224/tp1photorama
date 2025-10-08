@@ -14,7 +14,7 @@ public class MainCmd {
      * Effectue plusieurs tests :
      * 1. Comparaison de pixels entre images
      * 2. Affichage des hachages pour tests visuels
-     * 3. Analyse de performances des comparateurs sur un vrai dossier d'images
+     * 3. Analyse de performances des comparateurs sur airbnb-petit
      */
     public static void main(String[] args) throws IOException {
         final var cheminDossier = "airbnb-petit";
