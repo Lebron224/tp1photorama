@@ -61,6 +61,15 @@ public class ComparateurImagesHachageDifference extends ComparateurImages {
 
         return hachage;
     }
+
+    /**
+     * Méthode indépendante
+     * Génère le tableau de hachage à partir d'une image et de sa moyenne luminance.
+     *
+     * @param chemin chemin de l'image
+     * @return Matrice de Hachage
+     * @throws IOException si la lecture des images échoue
+     */
     @Override
     public int[][] calculTabHachageUnImage(String chemin) throws IOException{
         int[][] tab = GestionnaireImages.toPixels(GestionnaireImages.redimensionner(GestionnaireImages.lireImage(chemin),8,9));

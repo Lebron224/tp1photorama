@@ -53,13 +53,13 @@ public class ComparateurImagesHachageMoyenne extends ComparateurImages {
      * @return Moyenne arithmétique des valeurs
      */
     private double calculMoyenne(int[][] tab) {
-        int somme = 0;
+        double somme = 0;
         for (int[] ligne : tab) {
             for (int pixel : ligne) {
                 somme += pixel;
             }
         }
-        return (double) somme / (tab.length * tab[0].length);
+        return  somme / (tab.length * tab[0].length);
     }
 
     /**
@@ -78,6 +78,15 @@ public class ComparateurImagesHachageMoyenne extends ComparateurImages {
         }
         return hachage;
     }
+
+    /**
+     * Méthode indépendante
+     * Génère le tableau de hachage à partir d'une image et de sa moyenne luminance.
+     *
+     * @param chemin chemin de l'image
+     * @return Matrice de Hachage
+     * @throws IOException si la lecture des images échoue
+     */
     @Override
     public int[][] calculTabHachageUnImage(String chemin) throws IOException{
         int[][] tab = GestionnaireImages.toPixels(GestionnaireImages.redimensionner(GestionnaireImages.lireImage(chemin),8,8));

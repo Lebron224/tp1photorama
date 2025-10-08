@@ -151,6 +151,19 @@ public class MainJavaFX extends Application {
 
         HBox boutonsTolerance = creerBoutonsTolerance();
 
+        Button boutonOuvrirDossier = creerBoutonDossier();
+
+        sectionGalerie.getChildren().addAll(
+                titreGalerie,
+                texteDetectionDoublons, choixComparateur,
+                texteTolerance, boutonsTolerance,
+                boutonOuvrirDossier
+        );
+
+        return sectionGalerie;
+    }
+
+    private Button creerBoutonDossier() {
         Button boutonOuvrirDossier = new Button("Ouvrir un dossier...");
 
         // Event Handler qui appelle ouvrirNouvelleGallerie pour créer une nouvelle gallerie
@@ -164,15 +177,7 @@ public class MainJavaFX extends Application {
                 afficherErreur("Erreur détecté! Veuillez réessayez!");
             }
         });
-
-        sectionGalerie.getChildren().addAll(
-                titreGalerie,
-                texteDetectionDoublons, choixComparateur,
-                texteTolerance, boutonsTolerance,
-                boutonOuvrirDossier
-        );
-
-        return sectionGalerie;
+        return boutonOuvrirDossier;
     }
 
     /**
@@ -371,6 +376,7 @@ public class MainJavaFX extends Application {
 
     /**
      * Crée une ImageView pour une miniature de photo.
+     *
      * @param groupes liste de groupes d'images
      * @param i index du groupe
      * @return ImageView de la première image du groupe
@@ -386,6 +392,7 @@ public class MainJavaFX extends Application {
 
     /**
      * Affiche les doublons d'une image sous forme de miniatures.
+     *
      * @param groupes liste des groupes
      * @param centerImageView image principale
      * @param index index du groupe sélectionné
