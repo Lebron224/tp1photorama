@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Classe de test en ligne de commande (non-GUI) pour l'application Photorama.
- * Permet de tester les différents comparateurs d'images sur des jeux d'essai.
+ * Classe de test en ligne de commande pour l'application Photorama.
+ * Permet de tester les différents comparateurs d'images.
  */
 public class MainCmd {
 
