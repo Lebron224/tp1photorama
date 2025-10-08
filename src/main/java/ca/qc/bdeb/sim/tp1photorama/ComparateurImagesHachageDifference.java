@@ -55,17 +55,13 @@ public class ComparateurImagesHachageDifference extends ComparateurImages {
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (tab[i][j] <= tab[i + 1][j]) {
-                    hachage[i][j] = 0;
-                } else {
-                    hachage[i][j] = 1;
-                }
+                hachage[i][j] = (tab[i][j] <= tab[i + 1][j]) ? 0 : 1;
             }
         }
 
         return hachage;
     }
-
+    @Override
     public int[][] calculTabHachageUnImage(String chemin) throws IOException{
         int[][] tab = GestionnaireImages.toPixels(GestionnaireImages.redimensionner(GestionnaireImages.lireImage(chemin),8,9));
         return calculTabHache(tab);

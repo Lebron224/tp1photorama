@@ -32,4 +32,5 @@ public abstract class ComparateurImages {
     }
 
     public abstract boolean imagesSimilaires(String chemin1, String chemin2) throws IOException;
+    public abstract int[][] calculTabHachageUnImage(String chemin) throws IOException;
 }

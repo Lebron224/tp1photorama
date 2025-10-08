@@ -78,7 +78,7 @@ public class ComparateurImagesHachageMoyenne extends ComparateurImages {
         }
         return hachage;
     }
-
+    @Override
     public int[][] calculTabHachageUnImage(String chemin) throws IOException{
         int[][] tab = GestionnaireImages.toPixels(GestionnaireImages.redimensionner(GestionnaireImages.lireImage(chemin),8,8));
         double moyenne = calculMoyenne(tab);

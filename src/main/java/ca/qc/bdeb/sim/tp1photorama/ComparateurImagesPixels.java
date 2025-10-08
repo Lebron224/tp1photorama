@@ -7,6 +7,7 @@ import java.io.IOException;
  * Compare la différence de luminosité pixel par pixel.
  */
 public class ComparateurImagesPixels extends ComparateurImages {
+
     /**
      * Compare deux images pixel par pixel et détermine si elles sont similaires.
      *
@@ -55,5 +56,10 @@ public class ComparateurImagesPixels extends ComparateurImages {
 
         // Calcule et retourne le pourcentage de pixels différents
         return ((double) nbrPixelDifferent / (image1.length * image1[0].length)) * 100;
+    }
+
+    @Override
+    public int[][] calculTabHachageUnImage(String chemin){
+        return new int[0][];
     }
 }
