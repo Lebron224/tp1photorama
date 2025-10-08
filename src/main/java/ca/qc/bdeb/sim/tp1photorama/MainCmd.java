@@ -17,7 +17,7 @@ public class MainCmd {
      * 3. Analyse de performances des comparateurs sur un vrai dossier d'images
      */
     public static void main(String[] args) throws IOException {
-        final var cheminDossier = "C:\\Users\\bartl\\Desktop\\Tp1\\tp1photorama\\airbnb-petit";
+        final var cheminDossier = "airbnb-petit";
 
         // Instanciation des différents comparateurs
         var compPixel = new ComparateurImagesPixels();
@@ -50,7 +50,7 @@ public class MainCmd {
         }
 
         // === 2. Affichage des hachages générés par les algorithmes ===
-        System.out.println("\n=== 2. Affichage des valeurs de hachage ===");
+        System.out.println("=== 2. Affichage des valeurs de hachage ===");
         String[] debugHachageMoyenne = {"debogage/moyenne-test1.png", "debogage/moyenne-test2.png", "debogage/moyenne-test3.png"};
         String[] debugHachageDifferences = {"debogage/diff-test1.png", "debogage/diff-test2.png", "debogage/diff-test3.png"};
 
